@@ -1,3 +1,5 @@
+package ActiveObject;
+
 import java.util.concurrent.*;
 
 public class MyActiveObject implements ActiveObject {
