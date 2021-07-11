@@ -11,10 +11,8 @@ public class DoubleChecked {
     private volatile bigObject someBigObject;
 
     private static class JVMStaticSol {
-        private static bigObject staticBigO;
-
+        private static final bigObject staticBigO = new bigObject("JVMStaticSol");
         private static bigObject init() {
-            staticBigO = new bigObject("JVMStaticSol");
             return staticBigO;
         }
     }
