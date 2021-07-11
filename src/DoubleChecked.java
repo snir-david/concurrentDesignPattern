@@ -3,12 +3,22 @@ class bigObject {
 
     bigObject(String funcName) {
         counter++;
-        System.out.println("Double Checked CTOR called from " + funcName + "Counter : " + counter);
+        System.out.println("Big Object CTOR called from " + funcName + "Counter : " + counter);
     }
 }
 
 public class DoubleChecked {
     private volatile bigObject someBigObject;
+
+    private static class JVMStaticSol {
+        private static bigObject staticBigO;
+
+        private static bigObject init() {
+            staticBigO = new bigObject("JVMStaticSol");
+            return staticBigO;
+        }
+    }
+
 
     public bigObject getBigObjectNotThreadSafe() throws InterruptedException {
         if (someBigObject == null) {
@@ -32,32 +42,40 @@ public class DoubleChecked {
         return DC;
     }
 
+    public bigObject getStaticObject() {
+        this.someBigObject = JVMStaticSol.init();
+        return someBigObject;
+    }
+
     public static void main(String[] args) throws InterruptedException {
-        DoubleChecked dcNotSafe = new DoubleChecked();
-        DoubleChecked dcSafe = new DoubleChecked();
-        System.out.println("Not Thread Safe Locking");
-        for (int i = 0; i < 10; i++) {
-            new Thread(() -> {
-                try {
-                    System.out.println("Big Object Address is - " + dcNotSafe.getBigObjectNotThreadSafe());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        }
-        // Sleep for 4 seconds - let Not Safe Threads run
-        Thread.sleep(4000);
-        System.out.println("Thread Safe Locking");
-        for (int i = 0; i < 10; i++) {
-            new Thread(() -> {
-                try {
-                    System.out.println("Big Object Address is - " + dcSafe.getBigObjectThreadSafe());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        }
-
-
+//        DoubleChecked dcNotSafe = new DoubleChecked();
+//        DoubleChecked dcSafe = new DoubleChecked();
+//        System.out.println("Not Thread Safe Locking");
+//        for (int i = 0; i < 10; i++) {
+//            new Thread(() -> {
+//                try {
+//                    System.out.println("Big Object Address is - " + dcNotSafe.getBigObjectNotThreadSafe());
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }).start();
+//        }
+//        // Sleep for 4 seconds - let Not Safe Threads run
+//        Thread.sleep(4000);
+//        System.out.println("Thread Safe Locking");
+//        for (int i = 0; i < 10; i++) {
+//            new Thread(() -> {
+//                try {
+//                    System.out.println("Big Object Address is - " + dcSafe.getBigObjectThreadSafe());
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }).start();
+//        }
+        DoubleChecked dcStat = new DoubleChecked();
+        System.out.println("Big Object Address is - " + JVMStaticSol.staticBigO);
+        dcStat.getStaticObject();
+        System.out.println("Big Object Address is - " + JVMStaticSol.staticBigO);
+        System.out.println("Big Object Address is - " + dcStat.someBigObject);
     }
 }
