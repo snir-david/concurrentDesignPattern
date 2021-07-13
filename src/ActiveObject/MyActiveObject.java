@@ -32,7 +32,6 @@ public class MyActiveObject implements ActiveObject {
             someData = "This is Some Data!";
             System.out.println(someData);
         });
-
     }
 
     @Override
