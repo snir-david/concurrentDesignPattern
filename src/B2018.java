@@ -11,43 +11,35 @@ public class B2018 {
     }
 
     HashMap<String, Command> commandMap;
-    List<Command> dispatch;
+    PriorityBlockingQueue<Command> dispatch;
     volatile boolean stop;
     List<Thread> threadsList;
 
     public B2018(HashMap<String, Command> map) {
         commandMap = map;
-        dispatch = new ArrayList<>();
+        dispatch = new PriorityBlockingQueue<>(map.size(), (o1, o2) -> o1.getPriority() - o2.getPriority());
         stop = false;
     }
 
     public void submit(String command) {
-        synchronized (this) {
-            dispatch.add(commandMap.get(command));
-        }
+        dispatch.add(commandMap.get(command));
+
     }
 
     void stop() {
         stop = true;
-        for(Thread t: threadsList){
+        for (Thread t : threadsList) {
             t.interrupt();
         }
     }
 
     void start(int numOfThreads) {
-        dispatch.sort((o1, o2) -> o1.getPriority() - o2.getPriority());
-        BlockingQueue<Command> queue = new LinkedBlockingQueue<>();
         threadsList = new ArrayList<>();
-        for (Command command : dispatch)
-            try {
-                queue.put(command);
-            } catch (Exception ignored) {
-            }
         for (int i = 0; i < numOfThreads; i++) {
             threadsList.add(new Thread(() -> {
                 while (!stop) {
                     try {
-                        queue.take().doCommand();
+                        dispatch.take().doCommand();
                     } catch (Exception ignored) {
                     }
                 }
